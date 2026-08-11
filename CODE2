@@ -1,0 +1,254 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+
+# ============================================================
+# 1. DATA
+# ============================================================
+
+years = np.array([
+    2014, 2015, 2016, 2017, 2018,
+    2019, 2020, 2021, 2022, 2023, 2024
+])
+
+almonds = np.array([
+    3066, 3192.7, 3279.7, 6676.3, 3391.8,
+    3446.9, 3954.9, 4292.3, 4293.4, 4383.5, 4601.6
+])
+
+avocados = np.array([
+    6628.6, 6383.9, 6529.5, 7722.9, 8477.6,
+    10412.3, 8997.7, 9243, 9567.6, 9203.6, 8866.5
+])
+
+cherries = np.array([
+    4177.4, 4187.1, 4175, 4174, 4178.8,
+    4175.9, 4183.2, 4179.3, 4179.5, 4180.7, 4179.9
+])
+
+
+# ============================================================
+# 2. CROPS
+# ============================================================
+
+crops = {
+    "Almonds": almonds,
+    "Avocados": avocados,
+    "Cherries": cherries
+}
+
+colors = {
+    "Almonds": "green",
+    "Avocados": "orange",
+    "Cherries": "red"
+}
+
+
+# ============================================================
+# 3. CREATE GRAPH
+# ============================================================
+
+plt.figure(figsize=(12, 7))
+
+
+# ============================================================
+# 4. POLYNOMIAL REGRESSION FOR EACH CROP
+# ============================================================
+
+for crop, yield_data in crops.items():
+
+    # Reshape year data
+    X = years.reshape(-1, 1)
+    y = yield_data
+
+    # Create degree-2 polynomial
+    poly = PolynomialFeatures(degree=2)
+
+    X_poly = poly.fit_transform(X)
+
+    # Create regression model
+    model = LinearRegression()
+
+    # Train model
+    model.fit(X_poly, y)
+
+    # --------------------------------------------------------
+    # Predictions for the historical data
+    # --------------------------------------------------------
+
+    y_pred = model.predict(X_poly)
+
+    # --------------------------------------------------------
+    # Calculate R²
+    # --------------------------------------------------------
+
+    r2 = r2_score(y, y_pred)
+
+    # --------------------------------------------------------
+    # Calculate RMSE
+    # --------------------------------------------------------
+
+    rmse = np.sqrt(
+        mean_squared_error(y, y_pred)
+    )
+
+    # --------------------------------------------------------
+    # Create smooth curve from 2014 to 2030
+    # --------------------------------------------------------
+
+    smooth_years = np.linspace(
+        2014,
+        2030,
+        300
+    ).reshape(-1, 1)
+
+    smooth_years_poly = poly.transform(
+        smooth_years
+    )
+
+    smooth_predictions = model.predict(
+        smooth_years_poly
+    )
+
+    # --------------------------------------------------------
+    # Prediction for 2030
+    # --------------------------------------------------------
+
+    year_2030 = np.array([[2030]])
+
+    year_2030_poly = poly.transform(
+        year_2030
+    )
+
+    prediction_2030 = model.predict(
+        year_2030_poly
+    )[0]
+
+    # --------------------------------------------------------
+    # Print results
+    # --------------------------------------------------------
+
+    print("\n===================================")
+    print(crop)
+    print("===================================")
+
+    print(
+        f"R²   = {r2:.4f}"
+    )
+
+    print(
+        f"RMSE = {rmse:.2f} kg/ha"
+    )
+
+    print(
+        f"2030 predicted yield = "
+        f"{prediction_2030:.2f} kg/ha"
+    )
+
+    print(
+        "\nPolynomial Equation:"
+    )
+
+    print(
+        f"Y = {model.intercept_:.4f} "
+        f"+ ({model.coef_[1]:.4f})X "
+        f"+ ({model.coef_[2]:.4f})X²"
+    )
+
+    # --------------------------------------------------------
+    # Plot actual data
+    # --------------------------------------------------------
+
+    plt.scatter(
+        years,
+        y,
+        color=colors[crop],
+        s=55,
+        label=f"{crop} actual"
+    )
+
+    # --------------------------------------------------------
+    # Plot polynomial curve
+    # --------------------------------------------------------
+
+    plt.plot(
+        smooth_years,
+        smooth_predictions,
+        color=colors[crop],
+        linewidth=2.5,
+        label=f"{crop} polynomial"
+    )
+
+    # --------------------------------------------------------
+    # Plot 2030 prediction
+    # --------------------------------------------------------
+
+    plt.scatter(
+        2030,
+        prediction_2030,
+        color=colors[crop],
+        edgecolor="black",
+        linewidth=1.5,
+        marker="*",
+        s=180,
+        zorder=5
+    )
+
+    # --------------------------------------------------------
+    # Label 2030 prediction
+    # --------------------------------------------------------
+
+    plt.annotate(
+        f"{prediction_2030:.0f}",
+        (2030, prediction_2030),
+        xytext=(8, 8),
+        textcoords="offset points",
+        fontsize=10,
+        fontweight="bold"
+    )
+
+
+# ============================================================
+# 5. GRAPH FORMATTING
+# ============================================================
+
+plt.title(
+    "Polynomial Regression of Crop Yield",
+    fontsize=18,
+    fontweight="bold"
+)
+
+plt.xlabel(
+    "Year",
+    fontsize=13
+)
+
+plt.ylabel(
+    "Yield (kg/ha)",
+    fontsize=13
+)
+
+plt.xlim(
+    2013,
+    2031
+)
+
+plt.grid(
+    True,
+    linestyle="--",
+    alpha=0.5
+)
+
+plt.legend(
+    fontsize=10,
+    loc="best"
+)
+
+plt.tight_layout()
+
+plt.show()
