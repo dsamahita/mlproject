@@ -5,9 +5,12 @@ LINEAR OUTPUT
 
 POLYNOMIAL OUTPUT
 <img width="585" height="705" alt="image" src="https://github.com/user-attachments/assets/7270b8ab-baab-4485-a6aa-86fdaf6bd038" />
+<img width="400" height="249" alt="image" src="https://github.com/user-attachments/assets/0f9da723-4c54-4d79-ba06-191749c8925a" />
+
 
 
 MULTIVARIATE OUTPUT
+![Uploading image.png…]()
 
 <img width="612" height="731" alt="image" src="https://github.com/user-attachments/assets/43485f9a-e632-4ec2-8f0e-1ba1574ef4fb" />
 <img width="237" height="171" alt="image" src="https://github.com/user-attachments/assets/f06376fb-5ca7-46c1-bba8-9a876a77a7e7" />
