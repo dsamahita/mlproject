@@ -1,0 +1,75 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Historical data
+years = np.array([
+    2014, 2015, 2016, 2017, 2018,
+    2019, 2020, 2021, 2022, 2023, 2024
+]).reshape(-1, 1)
+
+yield_kg_ha = np.array([
+    3066, 3192.7, 3279.7, 6676.3, 3391.8,
+    3446.9, 3954.9, 4292.3, 4293.4, 4383.5, 4601.6
+])
+
+# Create and train linear regression model
+model = LinearRegression()
+model.fit(years, yield_kg_ha)
+
+# Predict for 2030
+year_2030 = np.array([[2030]])
+prediction_2030 = model.predict(year_2030)[0]
+
+print("Regression equation:")
+print(f"Yield = {model.intercept_:.2f} + ({model.coef_[0]:.2f} × Year)")
+
+print(f"\nPredicted yield in 2030 = {prediction_2030:.2f} kg/ha")
+
+# Predictions for historical years
+predicted = model.predict(years)
+
+# Plot actual data
+plt.figure(figsize=(10, 6))
+
+plt.scatter(
+    years,
+    yield_kg_ha,
+    color="blue",
+    label="Actual data"
+)
+
+# Regression line
+plt.plot(
+    years,
+    predicted,
+    color="red",
+    linewidth=2,
+    label="Linear regression"
+)
+
+# Plot 2030 prediction
+plt.scatter(
+    2030,
+    prediction_2030,
+    color="green",
+    s=100,
+    label=f"2030 prediction = {prediction_2030:.2f} kg/ha"
+)
+
+plt.annotate(
+    f"{prediction_2030:.2f} kg/ha",
+    (2030, prediction_2030),
+    xytext=(10, 10),
+    textcoords="offset points",
+    fontsize=10
+)
+
+plt.title("Almond Yield Prediction Using Linear Regression")
+plt.xlabel("Year")
+plt.ylabel("Yield (kg/ha)")
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
