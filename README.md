@@ -10,7 +10,8 @@ POLYNOMIAL OUTPUT
 
 
 MULTIVARIATE OUTPUT
-![Uploading image.png…]()
+
+<img width="548" height="372" alt="image" src="https://github.com/user-attachments/assets/8c62bb1b-123c-4fd7-921c-5b54640c91e4" />
 
 <img width="612" height="731" alt="image" src="https://github.com/user-attachments/assets/43485f9a-e632-4ec2-8f0e-1ba1574ef4fb" />
 <img width="237" height="171" alt="image" src="https://github.com/user-attachments/assets/f06376fb-5ca7-46c1-bba8-9a876a77a7e7" />
