@@ -1,0 +1,346 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+
+# ============================================================
+# 1. DATA
+# ============================================================
+
+years = np.array([
+    2014, 2015, 2016, 2017, 2018,
+    2019, 2020, 2021, 2022, 2023, 2024
+])
+
+almonds = np.array([
+    3066, 3192.7, 3279.7, 6676.3, 3391.8,
+    3446.9, 3954.9, 4292.3, 4293.4, 4383.5, 4601.6
+])
+
+avocados = np.array([
+    6628.6, 6383.9, 6529.5, 7722.9, 8477.6,
+    10412.3, 8997.7, 9243, 9567.6, 9203.6, 8866.5
+])
+
+cherries = np.array([
+    4177.4, 4187.1, 4175, 4174, 4178.8,
+    4175.9, 4183.2, 4179.3, 4179.5, 4180.7, 4179.9
+])
+
+
+# ============================================================
+# 2. CREATE DATAFRAME
+# ============================================================
+
+df = pd.DataFrame({
+    "Year": list(years) * 3,
+
+    "Crop": (
+        ["Almonds"] * 11 +
+        ["Avocados"] * 11 +
+        ["Cherries"] * 11
+    ),
+
+    "Yield": np.concatenate([
+        almonds,
+        avocados,
+        cherries
+    ])
+})
+
+
+# ============================================================
+# 3. CREATE VARIABLES FOR MULTIVARIATE REGRESSION
+# ============================================================
+
+# Center the year around 2019
+df["t"] = df["Year"] - 2019
+
+
+# Dummy variables
+# Cherries = reference category
+
+df["Almond"] = (
+    df["Crop"] == "Almonds"
+).astype(int)
+
+df["Avocado"] = (
+    df["Crop"] == "Avocados"
+).astype(int)
+
+
+# Independent variables
+X = df[
+    [
+        "t",
+        "Almond",
+        "Avocado"
+    ]
+]
+
+# Dependent variable
+y = df["Yield"]
+
+
+# ============================================================
+# 4. TRAIN MULTIVARIATE REGRESSION MODEL
+# ============================================================
+
+model = LinearRegression()
+
+model.fit(X, y)
+
+
+# ============================================================
+# 5. PREDICT HISTORICAL VALUES
+# ============================================================
+
+y_pred = model.predict(X)
+
+
+# ============================================================
+# 6. CALCULATE R² AND RMSE
+# ============================================================
+
+r2 = r2_score(
+    y,
+    y_pred
+)
+
+rmse = np.sqrt(
+    mean_squared_error(
+        y,
+        y_pred
+    )
+)
+
+
+# ============================================================
+# 7. PRINT EQUATION AND MODEL RESULTS
+# ============================================================
+
+print("\n========================================")
+print("MULTIVARIATE REGRESSION RESULTS")
+print("========================================")
+
+print(
+    f"R² = {r2:.4f}"
+)
+
+print(
+    f"RMSE = {rmse:.2f} kg/ha"
+)
+
+print("\nRegression Equation:")
+
+print(
+    f"Yield = {model.intercept_:.2f} "
+    f"+ ({model.coef_[0]:.2f})t "
+    f"+ ({model.coef_[1]:.2f})Almond "
+    f"+ ({model.coef_[2]:.2f})Avocado"
+)
+
+print("\nWhere:")
+print("t = Year - 2019")
+print("Almond = 1 for Almonds, otherwise 0")
+print("Avocado = 1 for Avocados, otherwise 0")
+print("Cherries are the reference category.")
+
+
+# ============================================================
+# 8. PREDICT 2030 FOR EACH CROP
+# ============================================================
+
+future_years = np.arange(
+    2014,
+    2031
+)
+
+colors = {
+    "Almonds": "green",
+    "Avocados": "orange",
+    "Cherries": "red"
+}
+
+
+# ============================================================
+# 9. CREATE GRAPH
+# ============================================================
+
+plt.figure(
+    figsize=(12, 7)
+)
+
+
+for crop in [
+    "Almonds",
+    "Avocados",
+    "Cherries"
+]:
+
+    # Get actual data
+    crop_data = df[
+        df["Crop"] == crop
+    ]
+
+    # --------------------------------------------------------
+    # Actual data points
+    # --------------------------------------------------------
+
+    plt.scatter(
+        crop_data["Year"],
+        crop_data["Yield"],
+        color=colors[crop],
+        s=55,
+        label=f"{crop} actual"
+    )
+
+
+    # --------------------------------------------------------
+    # Create future input data
+    # --------------------------------------------------------
+
+    future_data = pd.DataFrame({
+
+        "t":
+            future_years - 2019,
+
+        "Almond":
+            [
+                1 if crop == "Almonds"
+                else 0
+            ] * len(future_years),
+
+        "Avocado":
+            [
+                1 if crop == "Avocados"
+                else 0
+            ] * len(future_years)
+    })
+
+
+    # --------------------------------------------------------
+    # Predictions
+    # --------------------------------------------------------
+
+    predictions = model.predict(
+        future_data
+    )
+
+
+    # --------------------------------------------------------
+    # Plot regression line
+    # --------------------------------------------------------
+
+    plt.plot(
+        future_years,
+        predictions,
+        color=colors[crop],
+        linewidth=2.5,
+        label=f"{crop} multivariate"
+    )
+
+
+    # --------------------------------------------------------
+    # 2030 prediction
+    # --------------------------------------------------------
+
+    prediction_2030 = predictions[-1]
+
+
+    plt.scatter(
+        2030,
+        prediction_2030,
+        color=colors[crop],
+        edgecolor="black",
+        linewidth=1.5,
+        marker="*",
+        s=180,
+        zorder=5
+    )
+
+
+    # --------------------------------------------------------
+    # Label 2030 prediction
+    # --------------------------------------------------------
+
+    plt.annotate(
+        f"{prediction_2030:.0f}",
+        (2030, prediction_2030),
+        xytext=(8, 8),
+        textcoords="offset points",
+        fontsize=10,
+        fontweight="bold"
+    )
+
+
+    # Print prediction
+    print(
+        f"\n{crop} 2030 prediction = "
+        f"{prediction_2030:.2f} kg/ha"
+    )
+
+
+# ============================================================
+# 10. ADD R² AND RMSE TO GRAPH
+# ============================================================
+
+text = (
+    f"R² = {r2:.4f}\n"
+    f"RMSE = {rmse:.2f} kg/ha"
+)
+
+plt.text(
+    2014.3,
+    max(y) * 0.95,
+    text,
+    fontsize=11,
+    bbox=dict(
+        facecolor="white",
+        edgecolor="black",
+        alpha=0.8
+    )
+)
+
+
+# ============================================================
+# 11. GRAPH FORMATTING
+# ============================================================
+
+plt.title(
+    "Multivariate Regression of Crop Yield",
+    fontsize=18,
+    fontweight="bold"
+)
+
+plt.xlabel(
+    "Year",
+    fontsize=13
+)
+
+plt.ylabel(
+    "Yield (kg/ha)",
+    fontsize=13
+)
+
+plt.xlim(
+    2013,
+    2031
+)
+
+plt.grid(
+    True,
+    linestyle="--",
+    alpha=0.5
+)
+
+plt.legend(
+    fontsize=10
+)
+
+plt.tight_layout()
+
+plt.show()
