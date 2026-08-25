@@ -15,3 +15,13 @@ MULTIVARIATE OUTPUT
 
 <img width="612" height="731" alt="image" src="https://github.com/user-attachments/assets/43485f9a-e632-4ec2-8f0e-1ba1574ef4fb" />
 <img width="237" height="171" alt="image" src="https://github.com/user-attachments/assets/f06376fb-5ca7-46c1-bba8-9a876a77a7e7" />
+
+
+
+
+*DECISION OUTPUT*
+<img width="1920" height="1080" alt="Screenshot (1)" src="https://github.com/user-attachments/assets/f4bd786c-cde2-40cf-83f8-2a3b49c48fe8" />
+<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/58b183e9-ba8d-4305-b478-01fba83de0b5" />
+<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/d08ba60f-645a-435d-a06e-2cc85317b6dc" />
+<img width="1920" height="1080" alt="Screenshot (4)" src="https://github.com/user-attachments/assets/02c47f57-6347-4171-bef1-fa8881f867f4" />
+<img width="1920" height="1080" alt="Screenshot (5)" src="https://github.com/user-attachments/assets/25980fea-cd56-4c5e-8069-68b8c379d3d9" />
