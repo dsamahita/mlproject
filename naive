@@ -1,0 +1,606 @@
+```python
+# ============================================================
+# MUSHROOM EDIBILITY - NAIVE BAYES
+# Normalization + Linear + Multivariate + Polynomial Regression
+# ============================================================
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler, PolynomialFeatures
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report,
+    mean_squared_error,
+    r2_score
+)
+
+
+# ============================================================
+# 1. LOAD DATASET
+# ============================================================
+
+print("=" * 70)
+print("MUSHROOM EDIBILITY DATASET")
+print("=" * 70)
+
+folder = Path(__file__).resolve().parent
+file_path = folder / "11_mushroom_edibility.csv"
+
+if not file_path.exists():
+    print("\nERROR: Dataset not found!")
+    print("Expected location:")
+    print(file_path)
+    input("\nPress Enter to exit...")
+    exit()
+
+df = pd.read_csv(file_path)
+
+print("\nDataset loaded successfully!")
+print("\nFirst 5 rows:")
+print(df.head())
+
+print("\nDataset shape:")
+print(df.shape)
+
+print("\nColumns:")
+print(df.columns.tolist())
+
+
+# ============================================================
+# 2. CLEAN DATA
+# ============================================================
+
+print("\n" + "=" * 70)
+print("DATA CLEANING")
+print("=" * 70)
+
+# Remove spaces from column names
+df.columns = df.columns.str.strip()
+
+# Remove SampleID
+if "SampleID" in df.columns:
+    df = df.drop(columns=["SampleID"])
+
+# Remove completely empty rows
+df = df.dropna(how="all")
+
+# Fill missing values
+for column in df.columns:
+
+    if df[column].isna().any():
+
+        # Use mode for categorical/string columns
+        if df[column].dtype == "object" or \
+           pd.api.types.is_string_dtype(df[column]):
+
+            df[column] = df[column].fillna(
+                df[column].mode()[0]
+            )
+
+        else:
+
+            df[column] = df[column].fillna(
+                df[column].median()
+            )
+
+
+print("\nMissing values:")
+print(df.isna().sum())
+
+
+# ============================================================
+# 3. SEPARATE FEATURES AND TARGET
+# ============================================================
+
+target_column = "Class"
+
+X = df.drop(columns=[target_column])
+y = df[target_column]
+
+
+print("\nFeatures:")
+print(X.columns.tolist())
+
+print("\nTarget:")
+print(target_column)
+
+
+# ============================================================
+# 4. CONVERT ALL FEATURE COLUMNS TO NUMBERS
+# ============================================================
+
+print("\n" + "=" * 70)
+print("ENCODING CATEGORICAL DATA")
+print("=" * 70)
+
+feature_encoders = {}
+
+for column in X.columns:
+
+    # Convert the column to string first.
+    # This handles Pandas object/string/category columns.
+    X[column] = X[column].astype(str)
+
+    encoder = LabelEncoder()
+
+    X[column] = encoder.fit_transform(
+        X[column]
+    )
+
+    feature_encoders[column] = encoder
+
+    print(
+        f"{column}: encoded successfully"
+    )
+
+
+# ============================================================
+# 5. ENCODE TARGET COLUMN
+# ============================================================
+
+target_encoder = LabelEncoder()
+
+y = target_encoder.fit_transform(
+    y.astype(str)
+)
+
+
+print("\nTarget encoding:")
+
+for number, name in enumerate(
+    target_encoder.classes_
+):
+    print(
+        number,
+        "=",
+        name
+    )
+
+
+# ============================================================
+# 6. CHECK THAT EVERYTHING IS NUMERIC
+# ============================================================
+
+print("\n" + "=" * 70)
+print("NUMERIC DATA CHECK")
+print("=" * 70)
+
+print(X.dtypes)
+
+# Force numeric conversion
+X = X.apply(
+    pd.to_numeric,
+    errors="coerce"
+)
+
+# Check for conversion problems
+if X.isna().any().any():
+
+    print("\nERROR: Some values could not be converted.")
+    print(X.isna().sum())
+
+    input("\nPress Enter to exit...")
+    exit()
+
+print("\nSUCCESS!")
+print("All feature columns are numeric.")
+
+print("\nEncoded data:")
+print(X.head())
+
+
+# ============================================================
+# 7. TRAIN / TEST SPLIT
+# ============================================================
+
+print("\n" + "=" * 70)
+print("TRAIN / TEST SPLIT")
+print("=" * 70)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print(
+    "\nTraining records:",
+    len(X_train)
+)
+
+print(
+    "Testing records:",
+    len(X_test)
+)
+
+
+# ============================================================
+# 8. NORMALIZATION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("NORMALIZATION")
+print("=" * 70)
+
+scaler = StandardScaler()
+
+X_train_normalized = scaler.fit_transform(
+    X_train
+)
+
+X_test_normalized = scaler.transform(
+    X_test
+)
+
+print("\nNormalization completed!")
+
+print("\nExample normalized data:")
+print(
+    X_train_normalized[:5]
+)
+
+
+# ============================================================
+# 9. NAIVE BAYES CLASSIFICATION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("NAIVE BAYES CLASSIFICATION")
+print("=" * 70)
+
+naive_bayes = GaussianNB()
+
+naive_bayes.fit(
+    X_train_normalized,
+    y_train
+)
+
+y_pred_nb = naive_bayes.predict(
+    X_test_normalized
+)
+
+nb_accuracy = accuracy_score(
+    y_test,
+    y_pred_nb
+)
+
+print(
+    "\nNaive Bayes Accuracy:",
+    f"{nb_accuracy * 100:.2f}%"
+)
+
+
+# ============================================================
+# 10. CONFUSION MATRIX
+# ============================================================
+
+print("\nConfusion Matrix:")
+
+print(
+    confusion_matrix(
+        y_test,
+        y_pred_nb
+    )
+)
+
+
+# ============================================================
+# 11. CLASSIFICATION REPORT
+# ============================================================
+
+print("\nClassification Report:")
+
+print(
+    classification_report(
+        y_test,
+        y_pred_nb,
+        target_names=target_encoder.classes_
+    )
+)
+
+
+# ============================================================
+# 12. LINEAR REGRESSION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("LINEAR REGRESSION")
+print("=" * 70)
+
+linear_model = LinearRegression()
+
+linear_model.fit(
+    X_train_normalized,
+    y_train
+)
+
+y_pred_linear = linear_model.predict(
+    X_test_normalized
+)
+
+# Convert regression values to classes
+y_pred_linear_class = np.where(
+    y_pred_linear >= 0.5,
+    1,
+    0
+)
+
+linear_accuracy = accuracy_score(
+    y_test,
+    y_pred_linear_class
+)
+
+linear_mse = mean_squared_error(
+    y_test,
+    y_pred_linear
+)
+
+linear_r2 = r2_score(
+    y_test,
+    y_pred_linear
+)
+
+print(
+    "\nAccuracy:",
+    f"{linear_accuracy * 100:.2f}%"
+)
+
+print(
+    "MSE:",
+    linear_mse
+)
+
+print(
+    "R2 Score:",
+    linear_r2
+)
+
+
+# ============================================================
+# 13. MULTIVARIATE REGRESSION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("MULTIVARIATE LINEAR REGRESSION")
+print("=" * 70)
+
+multivariate_model = LinearRegression()
+
+multivariate_model.fit(
+    X_train_normalized,
+    y_train
+)
+
+y_pred_multi = multivariate_model.predict(
+    X_test_normalized
+)
+
+y_pred_multi_class = np.where(
+    y_pred_multi >= 0.5,
+    1,
+    0
+)
+
+multi_accuracy = accuracy_score(
+    y_test,
+    y_pred_multi_class
+)
+
+multi_mse = mean_squared_error(
+    y_test,
+    y_pred_multi
+)
+
+multi_r2 = r2_score(
+    y_test,
+    y_pred_multi
+)
+
+print(
+    "\nAccuracy:",
+    f"{multi_accuracy * 100:.2f}%"
+)
+
+print(
+    "MSE:",
+    multi_mse
+)
+
+print(
+    "R2 Score:",
+    multi_r2
+)
+
+
+# ============================================================
+# 14. POLYNOMIAL REGRESSION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("POLYNOMIAL REGRESSION")
+print("=" * 70)
+
+poly = PolynomialFeatures(
+    degree=2,
+    include_bias=False
+)
+
+X_train_poly = poly.fit_transform(
+    X_train_normalized
+)
+
+X_test_poly = poly.transform(
+    X_test_normalized
+)
+
+poly_model = LinearRegression()
+
+poly_model.fit(
+    X_train_poly,
+    y_train
+)
+
+y_pred_poly = poly_model.predict(
+    X_test_poly
+)
+
+y_pred_poly_class = np.where(
+    y_pred_poly >= 0.5,
+    1,
+    0
+)
+
+poly_accuracy = accuracy_score(
+    y_test,
+    y_pred_poly_class
+)
+
+poly_mse = mean_squared_error(
+    y_test,
+    y_pred_poly
+)
+
+poly_r2 = r2_score(
+    y_test,
+    y_pred_poly
+)
+
+print(
+    "\nAccuracy:",
+    f"{poly_accuracy * 100:.2f}%"
+)
+
+print(
+    "MSE:",
+    poly_mse
+)
+
+print(
+    "R2 Score:",
+    poly_r2
+)
+
+
+# ============================================================
+# 15. MODEL COMPARISON
+# ============================================================
+
+print("\n" + "=" * 70)
+print("MODEL COMPARISON")
+print("=" * 70)
+
+results = pd.DataFrame({
+
+    "Model": [
+        "Naive Bayes",
+        "Linear Regression",
+        "Multivariate Regression",
+        "Polynomial Regression"
+    ],
+
+    "Accuracy (%)": [
+        nb_accuracy * 100,
+        linear_accuracy * 100,
+        multi_accuracy * 100,
+        poly_accuracy * 100
+    ]
+})
+
+print(
+    results.to_string(index=False)
+)
+
+
+# ============================================================
+# 16. FIND BEST MODEL
+# ============================================================
+
+best = results.loc[
+    results["Accuracy (%)"].idxmax()
+]
+
+print("\n" + "=" * 70)
+print("BEST MODEL")
+print("=" * 70)
+
+print(
+    "Model:",
+    best["Model"]
+)
+
+print(
+    "Accuracy:",
+    f"{best['Accuracy (%)']:.2f}%"
+)
+
+
+# ============================================================
+# 17. ACTUAL VS PREDICTED
+# ============================================================
+
+print("\n" + "=" * 70)
+print("ACTUAL VS PREDICTED")
+print("=" * 70)
+
+comparison = pd.DataFrame({
+
+    "Actual": target_encoder.inverse_transform(
+        y_test
+    ),
+
+    "Predicted": target_encoder.inverse_transform(
+        y_pred_nb
+    )
+})
+
+print(
+    comparison.head(20).to_string(
+        index=False
+    )
+)
+
+
+# ============================================================
+# 18. SAMPLE PREDICTION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("SAMPLE PREDICTION")
+print("=" * 70)
+
+sample = X_test.iloc[[0]]
+
+sample_normalized = scaler.transform(
+    sample
+)
+
+prediction = naive_bayes.predict(
+    sample_normalized
+)
+
+prediction_name = target_encoder.inverse_transform(
+    prediction
+)
+
+print(
+    "\nPredicted Mushroom Class:",
+    prediction_name[0]
+)
+
+
+# ============================================================
+# 19. PROGRAM COMPLETE
+# ============================================================
+
+print("\n" + "=" * 70)
+print("PROGRAM COMPLETED SUCCESSFULLY")
+print("=" * 70)
+```
