@@ -1,0 +1,212 @@
+[Running] python -u "c:\Users\RMC-1\Desktop\tree\naivebayes.py"
+======================================================================
+MUSHROOM EDIBILITY DATASET
+======================================================================
+
+Dataset loaded successfully!
+
+First 5 rows:
+  SampleID CapShape CapColor    Odor  ... RingNumber  Habitat Population      Class
+0    S0001     flat     gray    foul  ...        one    woods  scattered  poisonous
+1    S0002   convex    brown  almond  ...       none  grasses    several     edible
+2    S0003   convex     gray    none  ...        two   leaves  scattered  poisonous
+3    S0004     flat   yellow    none  ...        one    woods   abundant  poisonous
+4    S0005  knobbed     gray   fishy  ...        one    urban    several  poisonous
+
+[5 rows x 11 columns]
+
+Dataset shape:
+(600, 11)
+
+Columns:
+['SampleID', 'CapShape', 'CapColor', 'Odor', 'GillSpacing', 'GillColor', 'StalkShape', 'RingNumber', 'Habitat', 'Population', 'Class']
+
+======================================================================
+DATA CLEANING
+======================================================================
+
+Missing values:
+CapShape       0
+CapColor       0
+Odor           0
+GillSpacing    0
+GillColor      0
+StalkShape     0
+RingNumber     0
+Habitat        0
+Population     0
+Class          0
+dtype: int64
+
+Features:
+['CapShape', 'CapColor', 'Odor', 'GillSpacing', 'GillColor', 'StalkShape', 'RingNumber', 'Habitat', 'Population']
+
+Target:
+Class
+
+======================================================================
+ENCODING CATEGORICAL DATA
+======================================================================
+CapShape: encoded successfully
+CapColor: encoded successfully
+Odor: encoded successfully
+GillSpacing: encoded successfully
+GillColor: encoded successfully
+StalkShape: encoded successfully
+RingNumber: encoded successfully
+Habitat: encoded successfully
+Population: encoded successfully
+
+Target encoding:
+0 = edible
+1 = poisonous
+
+======================================================================
+NUMERIC DATA CHECK
+======================================================================
+CapShape       int32
+CapColor       int32
+Odor           int32
+GillSpacing    int32
+GillColor      int32
+StalkShape     int32
+RingNumber     int32
+Habitat        int32
+Population     int32
+dtype: object
+
+SUCCESS!
+All feature columns are numeric.
+
+Encoded data:
+   CapShape  CapColor  Odor  ...  RingNumber  Habitat  Population
+0         2         1     3  ...           1        4           1
+1         1         0     0  ...           0        0           2
+2         1         1     4  ...           2        1           1
+3         2         4     4  ...           1        4           0
+4         3         1     2  ...           1        3           2
+
+[5 rows x 9 columns]
+
+======================================================================
+TRAIN / TEST SPLIT
+======================================================================
+
+Training records: 480
+Testing records: 120
+
+======================================================================
+NORMALIZATION
+======================================================================
+
+Normalization completed!
+
+Example normalized data:
+[[ 0.77556673 -1.14456722 -1.74831744 -0.73440692  0.64114249 -1.14840785
+   1.71499775  0.60667827  1.18106272]
+ [-1.55113347  1.59896469  0.73450023  0.71032801  1.28496759 -1.14840785
+  -2.14073489  1.20834267  0.15031707]
+ [-0.38778337 -0.45868424  1.35520464  0.71032801  0.64114249  0.87077078
+   1.71499775 -1.19831493 -0.88042858]
+ [-0.38778337 -1.14456722  0.73450023 -0.73440692  0.64114249 -1.14840785
+  -0.21286857 -1.19831493  0.15031707]
+ [-0.38778337 -0.45868424  0.73450023 -0.73440692 -0.6465077   0.87077078
+  -0.21286857  0.00501387  0.15031707]]
+
+======================================================================
+NAIVE BAYES CLASSIFICATION
+======================================================================
+
+Naive Bayes Accuracy: 70.83%
+
+Confusion Matrix:
+[[25 26]
+ [ 9 60]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      edible       0.74      0.49      0.59        51
+   poisonous       0.70      0.87      0.77        69
+
+    accuracy                           0.71       120
+   macro avg       0.72      0.68      0.68       120
+weighted avg       0.71      0.71      0.70       120
+
+
+======================================================================
+LINEAR REGRESSION
+======================================================================
+
+Accuracy: 66.67%
+MSE: 0.21703913853633397
+R2 Score: 0.1118603026646181
+
+======================================================================
+MULTIVARIATE LINEAR REGRESSION
+======================================================================
+
+Accuracy: 66.67%
+MSE: 0.21703913853633397
+R2 Score: 0.1118603026646181
+
+======================================================================
+POLYNOMIAL REGRESSION
+======================================================================
+
+Accuracy: 67.50%
+MSE: 0.22695631614398568
+R2 Score: 0.07127850171259054
+
+======================================================================
+MODEL COMPARISON
+======================================================================
+                  Model  Accuracy (%)
+            Naive Bayes     70.833333
+      Linear Regression     66.666667
+Multivariate Regression     66.666667
+  Polynomial Regression     67.500000
+
+======================================================================
+BEST MODEL
+======================================================================
+Model: Naive Bayes
+Accuracy: 70.83%
+
+======================================================================
+ACTUAL VS PREDICTED
+======================================================================
+   Actual Predicted
+poisonous poisonous
+poisonous poisonous
+poisonous    edible
+   edible    edible
+poisonous poisonous
+poisonous    edible
+   edible poisonous
+   edible    edible
+   edible poisonous
+   edible    edible
+poisonous poisonous
+   edible    edible
+poisonous poisonous
+   edible    edible
+poisonous poisonous
+   edible poisonous
+   edible poisonous
+poisonous poisonous
+   edible poisonous
+   edible    edible
+
+======================================================================
+SAMPLE PREDICTION
+======================================================================
+
+Predicted Mushroom Class: poisonous
+
+======================================================================
+PROGRAM COMPLETED SUCCESSFULLY
+======================================================================
+
+[Done] exited with code=0 in 1.383 seconds
+
